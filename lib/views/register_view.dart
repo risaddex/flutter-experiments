@@ -1,10 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-
+import 'dart:developer' as devtools show log;
 import '../firebase_options.dart';
 
 class RegisterView extends StatefulWidget {
+  static const route = '/register/';
   const RegisterView({Key? key}) : super(key: key);
 
   @override
@@ -62,17 +63,17 @@ class _RegisterViewState extends State<RegisterView> {
               } on FirebaseException catch (e) {
                 switch (e.code) {
                   case 'email-already-in-use':
-                    print('Emailin use');
+                    devtools.log('Emailin use');
                     break;
                   case 'invalid-email':
-                    print('Invalid Email');
+                    devtools.log('Invalid Email');
                     break;
                   case 'weak-password':
-                    print('Weak password');
+                    devtools.log('Weak password');
                     break;
                   default:
-                    print('cant check error');
-                    print(e);
+                    devtools.log('cant check error');
+                    devtools.log(e.toString());
                     break;
                 }
               }
