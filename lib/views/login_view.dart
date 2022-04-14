@@ -1,10 +1,10 @@
 import 'dart:developer' as devtools show log;
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:notesapp/extensions/firebase_auth_exception.dart';
-import 'package:notesapp/main.dart';
+import 'package:notesapp/services/auth/auth_exceptions.dart';
+import 'package:notesapp/services/auth/auth_service.dart';
 import 'package:notesapp/util/show_error_dialog.dart';
+import 'package:notesapp/views/notes_view.dart';
 import 'package:notesapp/views/register_view.dart';
 import 'package:notesapp/views/verify_email_view.dart';
 
@@ -36,6 +36,7 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
+    final _authService = AuthService.firebase();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login'),
@@ -61,12 +62,12 @@ class _LoginViewState extends State<LoginView> {
               final email = _email.text;
               final password = _password.text;
               try {
-                await FirebaseAuth.instance.signInWithEmailAndPassword(
+                await _authService.logIn(
                   email: email,
                   password: password,
                 );
-                final user = FirebaseAuth.instance.currentUser;
-                if (user?.emailVerified ?? false) {
+                final user = _authService.currentUser;
+                if (user?.isEmailVerified ?? false) {
                   Navigator.of(context).pushNamedAndRemoveUntil(
                     NotesView.route,
                     (route) => false,
@@ -78,10 +79,13 @@ class _LoginViewState extends State<LoginView> {
                   VerifyEmailView.route,
                   (route) => false,
                 );
-              } on FirebaseAuthException catch (e) {
+              } on DomainException catch (e) {
                 await showErrorDialog(context, e.getDomainMessage());
               } catch (e) {
-                devtools.log('something Bag happened');
+                showErrorDialog(
+                  context,
+                  'An error ocurred.',
+                );
                 devtools.log(e.toString());
               }
             },
