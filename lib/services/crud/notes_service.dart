@@ -26,8 +26,6 @@ class NotesService {
       return await getUserByEmail(email: email);
     } on CouldNotFindException<DatabaseUser> {
       return await createUser(email: email);
-    } catch (e) {
-      rethrow;
     }
   }
 
@@ -101,7 +99,6 @@ class NotesService {
   }
 
   Future<DatabaseNote> getNoteById({required int id}) async {
-    await _ensureDatabaseIsOpen();
     final db = _getDatabaseOrThrow();
     final results = await db.query(
       notesTable,
@@ -177,25 +174,18 @@ class NotesService {
   Future<DatabaseUser> getUserByEmail({required String email}) async {
     await _ensureDatabaseIsOpen();
     final db = _getDatabaseOrThrow();
-    final results = await db.query(
+    final userRow = await db.query(
       usersTable,
       where: 'email = ?',
       limit: 1,
       whereArgs: [email.toLowerCase()],
     );
 
-    if (results.isNotEmpty) {
-      throw AlreadyExistsException<DatabaseUser>();
+    if (userRow.isEmpty) {
+      throw CouldNotFindException<DatabaseUser>();
     }
 
-    final userId = await db.insert(usersTable, {
-      emailColumn: email.toLowerCase(),
-    });
-
-    return DatabaseUser(
-      id: userId,
-      email: email,
-    );
+    return DatabaseUser.fromRow(userRow.first);
   }
 
   Database _getDatabaseOrThrow() {
@@ -205,9 +195,8 @@ class NotesService {
   }
 
   Future<void> open() async {
-    if (_db != null) throw DatabaseAlreadyOpenedException();
-
     try {
+      if (_db != null) throw DatabaseAlreadyOpenedException();
       final docsPath = await getApplicationDocumentsDirectory();
       final dbPath = join(docsPath.path, dbName);
       final db = await openDatabase(dbPath);
@@ -219,6 +208,10 @@ class NotesService {
       await _cacheNotes();
     } on MissingPlatformDirectoryException {
       throw UnableToGetDocumentsDirectory();
+    } on DatabaseAlreadyOpenedException {
+      // does nothing
+    } catch (e) {
+      rethrow;
     }
   }
 
