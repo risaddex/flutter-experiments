@@ -1,4 +1,4 @@
-import 'package:notesapp/domain/entities/user.entity.dart';
+import 'package:notesapp/domain/entities/auth_user.dart';
 
 abstract class AuthProvider {
   Future<void> initialize();

@@ -1,4 +1,4 @@
-import 'package:notesapp/domain/entities/user.entity.dart';
+import 'package:notesapp/domain/entities/auth_user.dart';
 import 'package:notesapp/services/auth/auth_provider.dart';
 import 'package:notesapp/services/auth/firebase_auth_provider.dart';
 
