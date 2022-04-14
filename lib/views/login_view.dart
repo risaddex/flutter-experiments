@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:notesapp/services/auth/auth_exceptions.dart';
 import 'package:notesapp/services/auth/auth_service.dart';
 import 'package:notesapp/util/show_error_dialog.dart';
-import 'package:notesapp/views/notes_view.dart';
+import 'package:notesapp/views/notes/notes_view.dart';
 import 'package:notesapp/views/register_view.dart';
 import 'package:notesapp/views/verify_email_view.dart';
 
