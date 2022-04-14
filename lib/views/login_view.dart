@@ -4,7 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:notesapp/extensions/firebase_auth_exception.dart';
 import 'package:notesapp/main.dart';
+import 'package:notesapp/util/show_error_dialog.dart';
 import 'package:notesapp/views/register_view.dart';
+import 'package:notesapp/views/verify_email_view.dart';
 
 class LoginView extends StatefulWidget {
   static const route = '/login/';
@@ -59,20 +61,25 @@ class _LoginViewState extends State<LoginView> {
               final email = _email.text;
               final password = _password.text;
               try {
-                final userCredential =
-                    await FirebaseAuth.instance.signInWithEmailAndPassword(
+                await FirebaseAuth.instance.signInWithEmailAndPassword(
                   email: email,
                   password: password,
                 );
+                final user = FirebaseAuth.instance.currentUser;
+                if (user?.emailVerified ?? false) {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    NotesView.route,
+                    (route) => false,
+                  );
+                  return;
+                }
 
                 Navigator.of(context).pushNamedAndRemoveUntil(
-                  NotesView.route,
+                  VerifyEmailView.route,
                   (route) => false,
                 );
-
-                devtools.log(userCredential.toString());
               } on FirebaseAuthException catch (e) {
-                e.handleFirebaseAuthError(context);
+                await showErrorDialog(context, e.getDomainMessage());
               } catch (e) {
                 devtools.log('something Bag happened');
                 devtools.log(e.toString());
