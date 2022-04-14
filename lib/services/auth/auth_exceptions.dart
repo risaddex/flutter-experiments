@@ -1,17 +1,42 @@
-// login exceptions
-class UserNotFoundAuthException implements Exception {}
+abstract class DomainException implements Exception {
+  String getDomainMessage();
+}
 
-class WrongPasswordAuthException implements Exception {}
+// login exceptions
+class UserNotFoundAuthException implements DomainException {
+  @override
+  String getDomainMessage() => 'User not found';
+}
+
+class WrongPasswordAuthException implements DomainException {
+  @override
+  String getDomainMessage() => 'Invalid credentials';
+}
 
 // register exceptions
-class WeakPasswordAuthException implements Exception {}
+class WeakPasswordAuthException implements DomainException {
+  @override
+  String getDomainMessage() => 'Weak password';
+}
 
-class EmailAlreadyInUseAuthException implements Exception {}
+class EmailAlreadyInUseAuthException implements DomainException {
+  @override
+  String getDomainMessage() => 'Email already in use';
+}
 
-class InvalidEmailAuthException implements Exception {}
+class InvalidEmailAuthException implements DomainException {
+  @override
+  String getDomainMessage() => 'Invalid email';
+}
 
 // generic exceptions
 
-class GeneralAuthException implements Exception {}
+class GeneralAuthException implements DomainException {
+  @override
+  String getDomainMessage() => 'An exception ocurred';
+}
 
-class UserNotLoggedInAuthException implements Exception {}
+class UserNotLoggedInAuthException implements DomainException {
+  @override
+  String getDomainMessage() => 'User not logged in';
+}
