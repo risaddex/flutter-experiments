@@ -2,9 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import 'dart:developer' as devtools show log;
 import '../firebase_options.dart';
 
 class LoginView extends StatefulWidget {
+  static const route = '/login/';
   const LoginView({Key? key}) : super(key: key);
 
   @override
@@ -17,8 +19,8 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   void initState() {
-    _email = TextEditingController();
-    _password = TextEditingController();
+    _email = TextEditingController(text: 'danilo.romano@datagrupo.com.br');
+    _password = TextEditingController(text: 'danilo.romano@datagrupo.com.br');
     super.initState();
   }
 
@@ -50,6 +52,7 @@ class _LoginViewState extends State<LoginView> {
             enableSuggestions: false,
             autocorrect: false,
             decoration: const InputDecoration(hintText: 'Enter your password'),
+
           ),
           TextButton(
             onPressed: () async {
@@ -62,14 +65,19 @@ class _LoginViewState extends State<LoginView> {
                   password: password,
                 );
 
-                print(userCredential);
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/notes/',
+                  (route) => false,
+                );
+
+                devtools.log(userCredential.toString());
               } on FirebaseAuthException catch (e) {
                 if (e.code == 'user-not-found') {
-                  print('User not found');
+                  devtools.log('User not found');
                 }
               } catch (e) {
-                print('something Bag happened');
-                print(e);
+                devtools.log('something Bag happened');
+                devtools.log(e.toString());
               }
             },
             child: const Text('Login'),

@@ -16,8 +16,9 @@ void main() {
     ),
     home: const HomePage(),
     routes: {
-      '/login/': (context) => const LoginView(),
-      '/register/': (context) => const RegisterView(),
+      LoginView.route: (context) => const LoginView(),
+      RegisterView.route: (context) => const RegisterView(),
+      NotesView.route: (context) => const NotesView(),
     },
   ));
 }
@@ -57,6 +58,7 @@ class HomePage extends StatelessWidget {
 enum MenuAction { logout }
 
 class NotesView extends StatefulWidget {
+  static const route = '/notes/';
   const NotesView({Key? key}) : super(key: key);
 
   @override
