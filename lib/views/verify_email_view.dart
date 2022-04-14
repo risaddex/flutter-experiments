@@ -1,5 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:notesapp/services/auth/auth_service.dart';
 import 'package:notesapp/views/register_view.dart';
 
 class VerifyEmailView extends StatefulWidget {
@@ -13,6 +13,7 @@ class VerifyEmailView extends StatefulWidget {
 class _VerifyEmailViewState extends State<VerifyEmailView> {
   @override
   Widget build(BuildContext context) {
+    final _authService = AuthService.firebase();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Verify email'),
@@ -25,14 +26,13 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
               "You you haven't received the email yet, press the button bellow"),
           TextButton(
             onPressed: () async {
-              final user = FirebaseAuth.instance.currentUser;
-              await user?.sendEmailVerification();
+              await _authService.sendEmailVerification();
             },
             child: const Text('Verify your email'),
           ),
           TextButton(
             onPressed: () async {
-              FirebaseAuth.instance.signOut();
+              _authService.logOut();
               Navigator.of(context).pushNamedAndRemoveUntil(
                 RegisterView.route,
                 (route) => false,

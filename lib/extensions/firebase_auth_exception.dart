@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:notesapp/services/auth/auth_exceptions.dart';
+import 'dart:developer' as devtools show log;
 
 extension ErrorMapper on FirebaseAuthException {
   Exception getDomainException() {
@@ -30,7 +31,8 @@ extension ErrorMapper on FirebaseAuthException {
         return 'Email already in use';
 
       default:
-        return 'Unknown error happened';
+        devtools.log(code);
+        return 'Error: $message';
     }
   }
 }

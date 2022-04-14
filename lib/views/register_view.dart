@@ -1,11 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'dart:developer' as devtools show log;
+
 import 'package:flutter/material.dart';
-import 'package:notesapp/extensions/firebase_auth_exception.dart';
+import 'package:notesapp/services/auth/auth_exceptions.dart';
+import 'package:notesapp/services/auth/auth_service.dart';
 import 'package:notesapp/util/show_error_dialog.dart';
 import 'package:notesapp/views/verify_email_view.dart';
-import 'dart:developer' as devtools show log;
-import '../firebase_options.dart';
 
 class RegisterView extends StatefulWidget {
   static const route = '/register/';
@@ -35,6 +34,7 @@ class _RegisterViewState extends State<RegisterView> {
 
   @override
   Widget build(BuildContext context) {
+    final _authService = AuthService.firebase();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Register'),
@@ -60,13 +60,15 @@ class _RegisterViewState extends State<RegisterView> {
               final email = _email.text;
               final password = _password.text;
               try {
-                await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                    email: email, password: password);
+                await _authService.createUser(
+                  email: email,
+                  password: password,
+                );
 
-                final user = FirebaseAuth.instance.currentUser;
-                await user?.sendEmailVerification();
+                await _authService.sendEmailVerification();
+
                 Navigator.of(context).pushNamed(VerifyEmailView.route);
-              } on FirebaseAuthException catch (e) {
+              } on DomainException catch (e) {
                 await showErrorDialog(context, e.getDomainMessage());
               } catch (e) {
                 devtools.log(e.toString());

@@ -1,10 +1,20 @@
+import 'dart:developer' as devtools show log;
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:notesapp/domain/entities/user.entity.dart';
-import 'package:notesapp/extensions/firebase_auth_exception.dart';
+import 'package:notesapp/firebase_options.dart';
 import 'package:notesapp/services/auth/auth_exceptions.dart';
 import 'package:notesapp/services/auth/auth_provider.dart';
 
 class FirebaseAuthProvider implements AuthProvider {
+  @override
+  Future<void> initialize() async {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
+
   @override
   Future<AuthUser> createUser({
     required String email,
@@ -77,5 +87,40 @@ class FirebaseAuthProvider implements AuthProvider {
     }
 
     await user.sendEmailVerification();
+  }
+}
+
+extension ErrorMapper on FirebaseAuthException {
+  Exception getDomainException() {
+    switch (code) {
+      case ('user-not-found'):
+        return UserNotFoundAuthException();
+
+      case ('wrong-password'):
+        return WrongPasswordAuthException();
+
+      case ('email-already-in-use'):
+        return EmailAlreadyInUseAuthException();
+
+      default:
+        return GeneralAuthException();
+    }
+  }
+
+  String getDomainMessage() {
+    switch (code) {
+      case ('user-not-found'):
+        return 'User not found';
+
+      case ('wrong-password'):
+        return 'Invalid credentials';
+
+      case ('email-already-in-use'):
+        return 'Email already in use';
+
+      default:
+        devtools.log(code);
+        return 'Error: $message';
+    }
   }
 }
