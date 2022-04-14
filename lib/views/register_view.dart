@@ -67,7 +67,7 @@ class _RegisterViewState extends State<RegisterView> {
                 await user?.sendEmailVerification();
                 Navigator.of(context).pushNamed(VerifyEmailView.route);
               } on FirebaseAuthException catch (e) {
-                e.handleFirebaseAuthError(context);
+                await showErrorDialog(context, e.getDomainMessage());
               } catch (e) {
                 devtools.log(e.toString());
                 showErrorDialog(

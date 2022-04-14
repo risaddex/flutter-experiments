@@ -1,36 +1,36 @@
-import 'dart:developer' as devtools show log;
-
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:notesapp/util/show_error_dialog.dart';
+import 'package:notesapp/services/auth/auth_exceptions.dart';
 
-extension HandleError on FirebaseAuthException {
-  Future<void> handleFirebaseAuthError(BuildContext context) {
+extension ErrorMapper on FirebaseAuthException {
+  Exception getDomainException() {
     switch (code) {
       case ('user-not-found'):
-        {
-          return showErrorDialog(
-            context,
-            'User not found',
-          );
-        }
+        return UserNotFoundAuthException();
 
       case ('wrong-password'):
-        {
-          return showErrorDialog(
-            context,
-            'Invalid Credentials',
-          );
-        }
+        return WrongPasswordAuthException();
+
+      case ('email-already-in-use'):
+        return EmailAlreadyInUseAuthException();
 
       default:
-        {
-          devtools.log(toString());
-          return showErrorDialog(
-            context,
-            'Error: ${message.toString()}\n\nCode: $code',
-          );
-        }
+        return GeneralAuthException();
+    }
+  }
+
+  String getDomainMessage() {
+    switch (code) {
+      case ('user-not-found'):
+        return 'User not found';
+
+      case ('wrong-password'):
+        return 'Invalid credentials';
+
+      case ('email-already-in-use'):
+        return 'Email already in use';
+
+      default:
+        return 'Unknown error happened';
     }
   }
 }
