@@ -3,7 +3,7 @@ import 'dart:developer' as devtools show log;
 import 'package:flutter/material.dart';
 import 'package:notesapp/services/auth/auth_exceptions.dart';
 import 'package:notesapp/services/auth/auth_service.dart';
-import 'package:notesapp/util/show_error_dialog.dart';
+import 'package:notesapp/util/dialogs/error_dialog.dart';
 import 'package:notesapp/views/verify_email_view.dart';
 
 class RegisterView extends StatefulWidget {
