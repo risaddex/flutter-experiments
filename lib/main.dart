@@ -52,29 +52,3 @@ class HomePage extends StatelessWidget {
   }
 }
 
-Future<bool> showLogoutDialog(BuildContext context) async {
-  final result = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Sign out'),
-          content: const Text('you want to sign out?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-              child: const Text('Log out'),
-            )
-          ],
-        );
-      });
-
-  return result ?? false;
-}
