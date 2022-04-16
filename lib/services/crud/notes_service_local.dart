@@ -3,11 +3,12 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:notesapp/extensions/list/filter.dart';
 import 'package:notesapp/services/crud/crud_exceptions.dart';
+import 'package:notesapp/services/notes/notes_service.dart';
 import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
-class NotesService {
+class NotesService implements GenericNotesService<DatabaseNote> {
   Database? _db;
 
   List<DatabaseNote> _notes = [];
@@ -28,7 +29,7 @@ class NotesService {
 
   late final StreamController<List<DatabaseNote>> _notesStreamController;
 
-  Stream<List<DatabaseNote>> get allNotes =>
+  Stream<Iterable<DatabaseNote>> get allNotes =>
       _notesStreamController.stream.filter((note) {
         final currentUser = _user;
         if (currentUser != null) {
@@ -59,24 +60,27 @@ class NotesService {
   }
 
   Future<void> _cacheNotes() async {
-    final allNotes = await getAllNotes();
+    final allNotes = await getAllNotes(ownerId: 0);
     _notes = allNotes.toList();
     _notesStreamController.add(_notes);
   }
 
-  Future<DatabaseNote> createNote({required DatabaseUser owner}) async {
+  @override
+  Future<DatabaseNote> createNewNote({required String ownerId}) async {
+    // just to signalize
+    var ownerEmail = ownerId;
     await _ensureDatabaseIsOpen();
     final db = _getDatabaseOrThrow();
 
-    final dbUser = await getUserByEmail(email: owner.email);
-    if (dbUser != owner) {
+    final dbUser = await getUserByEmail(email: ownerEmail);
+    if (dbUser.email != ownerEmail) {
       throw CouldNotFindException<DatabaseUser>();
     }
 
     const text = '';
 
     final noteId = await db.insert(notesTable, {
-      userIdColumn: owner.id,
+      userIdColumn: dbUser.id,
       textColumn: text,
       isSyncedWithCloudColumn: 1,
     });
@@ -94,14 +98,15 @@ class NotesService {
     return note;
   }
 
+  @override
   Future<DatabaseNote> updateNote({
-    required DatabaseNote note,
+    required int noteId,
     required String text,
   }) async {
     await _ensureDatabaseIsOpen();
     final db = _getDatabaseOrThrow();
 
-    await getNoteById(id: note.id);
+    await getNoteById(id: noteId);
 
     final updatesCount = await db.update(
       notesTable,
@@ -110,14 +115,14 @@ class NotesService {
         isSyncedWithCloudColumn: 0,
       },
       where: 'id = ?',
-      whereArgs: [note.id],
+      whereArgs: [noteId],
     );
 
     if (updatesCount == 0) {
       throw CouldNotUpdateException();
     }
 
-    final updatedNote = await getNoteById(id: note.id);
+    final updatedNote = await getNoteById(id: noteId);
     _notes.removeWhere((note) => note.id == updatedNote.id);
     _notes.add(updatedNote);
     _notesStreamController.add(_notes);
@@ -152,7 +157,8 @@ class NotesService {
     return note;
   }
 
-  Future<Iterable<DatabaseNote>> getAllNotes() async {
+  @override
+  Future<Iterable<DatabaseNote>> getAllNotes({required ownerId}) async {
     await _ensureDatabaseIsOpen();
     final db = _getDatabaseOrThrow();
     final notes = await db.query(
@@ -162,18 +168,19 @@ class NotesService {
     return notes.map((noteRow) => DatabaseNote.fromRow(noteRow));
   }
 
-  Future<void> deleteNote({required int id}) async {
+  @override
+  Future<void> deleteNote({required int noteId}) async {
     await _ensureDatabaseIsOpen();
     final deletedCount = await _getDatabaseOrThrow().delete(
       notesTable,
       where: 'id = ?',
-      whereArgs: [id],
+      whereArgs: [noteId],
     );
     if (deletedCount != 1) {
       throw CouldNotDeleteException<DatabaseNote>();
     }
 
-    _notes.removeWhere((note) => note.id == id);
+    _notes.removeWhere((note) => note.id == noteId);
     _notesStreamController.add(_notes);
   }
 

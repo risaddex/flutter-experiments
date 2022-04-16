@@ -3,27 +3,30 @@ import 'package:notesapp/services/cloud/cloud_note.dart';
 import 'package:notesapp/services/cloud/cloud_store_constants.dart';
 import 'package:notesapp/services/cloud/cloud_store_exceptions.dart'
     as cloud_exceptions hide CloudStorageException;
+import 'package:notesapp/services/notes/notes_service.dart';
 
-class FirebaseCloudStorage {
+class FirebaseCloudStorage implements GenericNotesService<CloudNote> {
   static const _notesCollectionName = 'notes';
   final notes = FirebaseFirestore.instance.collection(_notesCollectionName);
 
+  @override
   Future<void> deleteNote({
-    required String documentId,
+    required String noteId,
   }) async {
     try {
-      await notes.doc(documentId).delete();
+      await notes.doc(noteId).delete();
     } catch (e) {
       throw cloud_exceptions.CouldNotDeleteNoteException();
     }
   }
 
+  @override
   Future<void> updateNote({
-    required String documentId,
+    required String noteId,
     required String text,
   }) async {
     try {
-      await notes.doc(documentId).update({
+      await notes.doc(noteId).update({
         textFieldName: text,
       });
     } catch (e) {
@@ -31,28 +34,36 @@ class FirebaseCloudStorage {
     }
   }
 
+  
+
   Stream<Iterable<CloudNote>> allNotes({required String ownerUserId}) =>
       notes.snapshots().map((event) => event.docs
-          .map((doc) => CloudNote.fromSnapshot(doc))
+          .map(CloudNote.fromSnapshot)
           .where((note) => note.ownerUserId == ownerUserId));
 
-  Future<Iterable<CloudNote>> getNotes({required String ownerUserId}) async {
+  @override
+  Future<Iterable<CloudNote>> getAllNotes({required String ownerId}) async {
+    var whereArgs = notes.where(ownerUserIdFieldName, isEqualTo: ownerId);
     try {
-      var result =
-          await notes.where(ownerUserIdFieldName, isEqualTo: ownerUserId).get();
-
-      return result.docs.map((e) => CloudNote.fromSnapshot(e));
+      return (await whereArgs.get()).docs.map(CloudNote.fromSnapshot);
     } catch (e) {
       throw cloud_exceptions.CouldNotGetAllNotesException();
     }
   }
 
-  void createNewNote({required String ownerUserId}) async {
+  @override
+  Future<CloudNote> createNewNote({required String ownerId}) async {
     try {
-      await notes.add({
-        ownerUserId: ownerUserId,
+      final document = await notes.add({
+        ownerUserIdFieldName: ownerId,
         textFieldName: '',
       });
+      final fetchedNote = await document.get();
+      return CloudNote(
+        documentId: fetchedNote.id,
+        ownerUserId: ownerId,
+        text: '',
+      );
     } catch (e) {
       throw cloud_exceptions.CouldNotCreateNoteException();
     }
