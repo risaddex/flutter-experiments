@@ -11,3 +11,5 @@ class AlreadyExistsException<T> implements Exception {}
 class CouldNotFindException<T> implements Exception {}
 
 class CouldNotUpdateException<T> implements Exception {}
+
+class UserShouldBeSetBeforeReadingNotesException implements Exception {}

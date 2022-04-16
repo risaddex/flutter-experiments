@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:notesapp/extensions/list/filter.dart';
 import 'package:notesapp/services/crud/crud_exceptions.dart';
 import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart';
@@ -10,6 +11,8 @@ class NotesService {
   Database? _db;
 
   List<DatabaseNote> _notes = [];
+
+  DatabaseUser? _user;
 
   // singleton pattern
   static final NotesService _shared = NotesService._sharedInstance();
@@ -25,18 +28,39 @@ class NotesService {
 
   late final StreamController<List<DatabaseNote>> _notesStreamController;
 
-  Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
+  Stream<List<DatabaseNote>> get allNotes =>
+      _notesStreamController.stream.filter((note) {
+        final currentUser = _user;
+        if (currentUser != null) {
+          return note.userId == currentUser.id;
+        }
+        throw UserShouldBeSetBeforeReadingNotesException();
+      });
 
-  Future<DatabaseUser> getOrCreateUser({required String email}) async {
+  Future<DatabaseUser> getOrCreateUser({
+    required String email,
+    bool setAsCurrentUser = true,
+  }) async {
     try {
-      return await getUserByEmail(email: email);
+      final user = await getUserByEmail(email: email);
+      if (setAsCurrentUser) {
+        _user = user;
+      }
+      return user;
     } on CouldNotFindException<DatabaseUser> {
-      return await createUser(email: email);
+      final user = await createUser(email: email);
+      if (setAsCurrentUser) {
+        _user = user;
+      }
+      return user;
+    } catch (e) {
+      rethrow;
     }
   }
 
   Future<void> _cacheNotes() async {
-    _notes = await getAllNotes();
+    final allNotes = await getAllNotes();
+    _notes = allNotes.toList();
     _notesStreamController.add(_notes);
   }
 
@@ -79,10 +103,15 @@ class NotesService {
 
     await getNoteById(id: note.id);
 
-    final updatesCount = await db.update(notesTable, {
-      textColumn: text,
-      isSyncedWithCloudColumn: 0,
-    });
+    final updatesCount = await db.update(
+      notesTable,
+      {
+        textColumn: text,
+        isSyncedWithCloudColumn: 0,
+      },
+      where: 'id = ?',
+      whereArgs: [note.id],
+    );
 
     if (updatesCount == 0) {
       throw CouldNotUpdateException();
@@ -123,14 +152,14 @@ class NotesService {
     return note;
   }
 
-  Future<List<DatabaseNote>> getAllNotes() async {
+  Future<Iterable<DatabaseNote>> getAllNotes() async {
     await _ensureDatabaseIsOpen();
     final db = _getDatabaseOrThrow();
     final notes = await db.query(
       notesTable,
     );
 
-    return notes.map(DatabaseNote.fromRow).toList();
+    return notes.map((noteRow) => DatabaseNote.fromRow(noteRow));
   }
 
   Future<void> deleteNote({required int id}) async {
@@ -174,7 +203,14 @@ class NotesService {
       throw AlreadyExistsException<DatabaseUser>();
     }
 
-    return DatabaseUser.fromRow(results.first);
+    final userId = await db.insert(usersTable, {
+      emailColumn: email.toLowerCase(),
+    });
+
+    return DatabaseUser(
+      id: userId,
+      email: email,
+    );
   }
 
   Future<DatabaseUser> getUserByEmail({required String email}) async {
@@ -195,14 +231,18 @@ class NotesService {
   }
 
   Database _getDatabaseOrThrow() {
-    if (_db == null) throw DatabaseIsNotOpenException();
-
-    return _db!;
+    final db = _db;
+    if (db == null) {
+      throw DatabaseIsNotOpenException();
+    }
+    return db;
   }
 
   Future<void> open() async {
     try {
-      if (_db != null) throw DatabaseAlreadyOpenedException();
+      if (_db != null) {
+        throw DatabaseAlreadyOpenedException();
+      }
       final docsPath = await getApplicationDocumentsDirectory();
       final dbPath = join(docsPath.path, dbName);
       final db = await openDatabase(dbPath);
@@ -214,10 +254,6 @@ class NotesService {
       await _cacheNotes();
     } on MissingPlatformDirectoryException {
       throw UnableToGetDocumentsDirectory();
-    } on DatabaseAlreadyOpenedException {
-      // does nothing
-    } catch (e) {
-      rethrow;
     }
   }
 
