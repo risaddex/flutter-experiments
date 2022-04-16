@@ -7,6 +7,7 @@ import 'package:notesapp/services/auth/bloc/auth_state.dart';
 import 'package:notesapp/services/auth/firebase_auth_provider.dart';
 import 'package:notesapp/views/login_view.dart';
 import 'package:notesapp/views/notes/notes_view.dart';
+import 'package:notesapp/views/register_view.dart';
 import 'package:notesapp/views/verify_email_view.dart';
 
 void main() {
@@ -33,19 +34,36 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     context.read<AuthBloc>().add(const AuthEventInitialize());
 
-    return BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
-      switch (state.runtimeType) {
-        case AuthStateLoggedIn:
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        if (state is AuthStateLoggedIn) {
           return const NotesView();
-        case AuthStateNeedsVerification:
+        } else if (state is AuthStateNeedsVerification) {
           return const VerifyEmailView();
-        case AuthStateLoggedOut:
+        } else if (state is AuthStateLoggedOut) {
           return const LoginView();
-        default:
+        } else if (state is AuthStateRegistering) {
+          return const RegisterView();
+        } else {
           return const Scaffold(
             body: CircularProgressIndicator(),
           );
-      }
-    });
+        }
+        // switch (state.runtimeType) {
+        //   case AuthStateLoggedIn:
+        //     return const NotesView();
+        //   case AuthStateNeedsVerification:
+        //     return const VerifyEmailView();
+        //   case AuthStateLoggedOut:
+        //     return const LoginView();
+        //   case AuthStateRegistering:
+        //     return const RegisterView();
+        //   default:
+        //     return const Scaffold(
+        //       body: CircularProgressIndicator(),
+        //     );
+        // }
+      },
+    );
   }
 }

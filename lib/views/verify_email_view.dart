@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:notesapp/services/auth/auth_service.dart';
-import 'package:notesapp/views/register_view.dart';
+import 'package:notesapp/services/auth/bloc/auth_bloc.dart';
+import 'package:notesapp/services/auth/bloc/auth_event.dart';
 
 class VerifyEmailView extends StatefulWidget {
   static const route = '/verify-email/';
@@ -13,7 +15,6 @@ class VerifyEmailView extends StatefulWidget {
 class _VerifyEmailViewState extends State<VerifyEmailView> {
   @override
   Widget build(BuildContext context) {
-    final _authService = AuthService.firebase();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Verify email'),
@@ -25,18 +26,18 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
           const Text(
               "You you haven't received the email yet, press the button bellow"),
           TextButton(
-            onPressed: () async {
-              await _authService.sendEmailVerification();
+            onPressed: () {
+              context.read<AuthBloc>().add(
+                    const AuthEventSendEmailVerification(),
+                  );
             },
             child: const Text('Verify your email'),
           ),
           TextButton(
-            onPressed: () async {
-              _authService.logOut();
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                RegisterView.route,
-                (route) => false,
-              );
+            onPressed: () {
+              context.read<AuthBloc>().add(
+                    const AuthEventLogOut(),
+                  );
             },
             child: const Text('Restart'),
           ),
