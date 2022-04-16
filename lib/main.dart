@@ -6,6 +6,7 @@ import 'package:notesapp/services/auth/bloc/auth_bloc.dart';
 import 'package:notesapp/services/auth/bloc/auth_event.dart';
 import 'package:notesapp/services/auth/bloc/auth_state.dart';
 import 'package:notesapp/services/auth/firebase_auth_provider.dart';
+import 'package:notesapp/views/forgot_password_view.dart';
 import 'package:notesapp/views/login_view.dart';
 import 'package:notesapp/views/notes/notes_view.dart';
 import 'package:notesapp/views/register_view.dart';
@@ -47,19 +48,6 @@ class HomePage extends StatelessWidget {
         }
       },
       builder: (context, state) {
-        if (state is AuthStateLoggedIn) {
-          return const NotesView();
-        } else if (state is AuthStateNeedsVerification) {
-          return const VerifyEmailView();
-        } else if (state is AuthStateLoggedOut) {
-          return const LoginView();
-        } else if (state is AuthStateRegistering) {
-          return const RegisterView();
-        } else {
-          return const Scaffold(
-            body: CircularProgressIndicator(),
-          );
-        }
         switch (state.runtimeType) {
           case AuthStateLoggedIn:
             return const NotesView();
@@ -69,9 +57,19 @@ class HomePage extends StatelessWidget {
             return const LoginView();
           case AuthStateRegistering:
             return const RegisterView();
+          case AuthStateForgotPassword:
+            return const ForgotPasswordView();
           default:
-            return const Scaffold(
-              body: CircularProgressIndicator(),
+            return Scaffold(
+              appBar: AppBar(),
+              body: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    CircularProgressIndicator(),
+                  ],
+                ),
+              ),
             );
         }
       },

@@ -5,7 +5,7 @@ abstract class DomainException implements Exception {
 // login exceptions
 class UserNotFoundAuthException implements DomainException {
   @override
-  String getDomainMessage() => 'User not found';
+  String getDomainMessage() => 'Cannot find a user with the entered credentials!';
 }
 
 class WrongPasswordAuthException implements DomainException {

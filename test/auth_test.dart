@@ -1,4 +1,3 @@
-
 import 'package:notesapp/domain/entities/auth_user.dart';
 import 'package:notesapp/services/auth/auth_exceptions.dart';
 import 'package:notesapp/services/auth/auth_provider.dart';
@@ -148,6 +147,11 @@ class MockAuthProvider implements AuthProvider {
     _assertIsInitialized();
     final user = _user;
     if (user == null) throw UserNotFoundAuthException();
-    _user = const AuthUser(id:'abc',isEmailVerified:  true, email: '');
+    _user = const AuthUser(id: 'abc', isEmailVerified: true, email: '');
+  }
+
+  @override
+  Future<void> sendPasswordReset({required String toEmail}) {
+    throw UnimplementedError();
   }
 }

@@ -88,6 +88,17 @@ class FirebaseAuthProvider implements AuthProvider {
 
     await user.sendEmailVerification();
   }
+
+  @override
+  Future<void> sendPasswordReset({required String toEmail}) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: toEmail);
+    } on FirebaseAuthException catch (e) {
+      throw e.getDomainException();
+    } catch (_) {
+      throw GeneralAuthException();
+    }
+  }
 }
 
 extension ErrorMapper on FirebaseAuthException {

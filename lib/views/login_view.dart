@@ -22,8 +22,8 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   void initState() {
-    _email = TextEditingController(text: 'danilo.romano@datagrupo.com.br');
-    _password = TextEditingController(text: 'danilo.romano@datagrupo.com.br');
+    _email = TextEditingController();
+    _password = TextEditingController();
     super.initState();
   }
 
@@ -49,46 +49,66 @@ class _LoginViewState extends State<LoginView> {
         appBar: AppBar(
           title: const Text('Login'),
         ),
-        body: Column(
-          children: [
-            TextField(
-              controller: _email,
-              enableSuggestions: false,
-              autocorrect: false,
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(hintText: 'Enter your email'),
-            ),
-            TextField(
-              controller: _password,
-              obscureText: true,
-              enableSuggestions: false,
-              autocorrect: false,
-              decoration:
-                  const InputDecoration(hintText: 'Enter your password'),
-            ),
-            TextButton(
-              onPressed: () async {
-                final email = _email.text;
-                final password = _password.text;
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                  'Please log in to your account in order to interact with and create notes!'),
+              TextField(
+                controller: _email,
+                enableSuggestions: false,
+                autocorrect: false,
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(hintText: 'Enter your email'),
+              ),
+              TextField(
+                controller: _password,
+                obscureText: true,
+                enableSuggestions: false,
+                autocorrect: false,
+                decoration:
+                    const InputDecoration(hintText: 'Enter your password'),
+              ),
+              Center(
+                child: Column(
+                  children: [
+                    TextButton(
+                      onPressed: () async {
+                        final email = _email.text;
+                        final password = _password.text;
 
-                context.read<AuthBloc>().add(
-                      AuthEventLogin(
-                        email: email,
-                        password: password,
-                      ),
-                    );
-              },
-              child: const Text('Login'),
-            ),
-            TextButton(
-              onPressed: () {
-                context.read<AuthBloc>().add(
-                      const AuthEventShouldRegister(),
-                    );
-              },
-              child: const Text('not registered yet, register here!'),
-            )
-          ],
+                        context.read<AuthBloc>().add(
+                              AuthEventLogin(
+                                email: email,
+                                password: password,
+                              ),
+                            );
+                      },
+                      child: const Text('Login'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        context.read<AuthBloc>().add(
+                              const AuthEventForgotPassword(),
+                            );
+                      },
+                      child: const Text('Forgot your password?'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        context.read<AuthBloc>().add(
+                              const AuthEventShouldRegister(),
+                            );
+                      },
+                      child: const Text('not registered yet, register here!'),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

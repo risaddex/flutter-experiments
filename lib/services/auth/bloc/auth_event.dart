@@ -22,10 +22,10 @@ class AuthEventLogin extends AuthEvent {
   });
 }
 
-class AuthEventRegister extends AuthEvent {
+class AuthEventRegisterAttempt extends AuthEvent {
   final String email;
   final String password;
-  const AuthEventRegister({
+  const AuthEventRegisterAttempt({
     required this.email,
     required this.password,
   });
@@ -33,6 +33,11 @@ class AuthEventRegister extends AuthEvent {
 
 class AuthEventShouldRegister extends AuthEvent {
   const AuthEventShouldRegister();
+}
+
+class AuthEventForgotPassword extends AuthEvent {
+  final String? email;
+  const AuthEventForgotPassword({this.email});
 }
 
 class AuthEventLogOut extends AuthEvent {
