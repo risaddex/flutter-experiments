@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:notesapp/constants/routes.dart';
+import 'package:notesapp/helpers/loading/loading_screen.dart';
 import 'package:notesapp/services/auth/bloc/auth_bloc.dart';
 import 'package:notesapp/services/auth/bloc/auth_event.dart';
 import 'package:notesapp/services/auth/bloc/auth_state.dart';
@@ -34,7 +35,17 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     context.read<AuthBloc>().add(const AuthEventInitialize());
 
-    return BlocBuilder<AuthBloc, AuthState>(
+    return BlocConsumer<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state.isLoading) {
+          LoadingScreen().show(
+            context: context,
+            text: state.loadingText ?? 'Loading...',
+          );
+        } else {
+          LoadingScreen().hide();
+        }
+      },
       builder: (context, state) {
         if (state is AuthStateLoggedIn) {
           return const NotesView();
@@ -49,20 +60,20 @@ class HomePage extends StatelessWidget {
             body: CircularProgressIndicator(),
           );
         }
-        // switch (state.runtimeType) {
-        //   case AuthStateLoggedIn:
-        //     return const NotesView();
-        //   case AuthStateNeedsVerification:
-        //     return const VerifyEmailView();
-        //   case AuthStateLoggedOut:
-        //     return const LoginView();
-        //   case AuthStateRegistering:
-        //     return const RegisterView();
-        //   default:
-        //     return const Scaffold(
-        //       body: CircularProgressIndicator(),
-        //     );
-        // }
+        switch (state.runtimeType) {
+          case AuthStateLoggedIn:
+            return const NotesView();
+          case AuthStateNeedsVerification:
+            return const VerifyEmailView();
+          case AuthStateLoggedOut:
+            return const LoginView();
+          case AuthStateRegistering:
+            return const RegisterView();
+          default:
+            return const Scaffold(
+              body: CircularProgressIndicator(),
+            );
+        }
       },
     );
   }
