@@ -1,16 +1,13 @@
 import 'dart:developer' as devtools show log;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:notesapp/services/auth/auth_exceptions.dart';
-import 'package:notesapp/services/auth/auth_service.dart';
 import 'package:notesapp/services/auth/bloc/auth_bloc.dart';
 import 'package:notesapp/services/auth/bloc/auth_event.dart';
+import 'package:notesapp/services/auth/bloc/auth_state.dart';
 import 'package:notesapp/util/dialogs/error_dialog.dart';
-
-import 'package:notesapp/views/notes/notes_view.dart';
 import 'package:notesapp/views/register_view.dart';
-import 'package:notesapp/views/verify_email_view.dart';
-import 'package:provider/src/provider.dart';
 
 class LoginView extends StatefulWidget {
   static const route = '/login/';
@@ -40,7 +37,6 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    final _authService = AuthService.firebase();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login'),
@@ -61,28 +57,29 @@ class _LoginViewState extends State<LoginView> {
             autocorrect: false,
             decoration: const InputDecoration(hintText: 'Enter your password'),
           ),
-          TextButton(
-            onPressed: () async {
-              final email = _email.text;
-              final password = _password.text;
-              try {
+          BlocListener<AuthBloc, AuthState>(
+            listener: (context, state) async {
+              if (state is AuthStateLoggedOut) {
+                if (state.exception != null) {
+                  await showErrorDialog(
+                      context, state.exception!.getDomainMessage());
+                }
+              }
+            },
+            child: TextButton(
+              onPressed: () async {
+                final email = _email.text;
+                final password = _password.text;
+
                 context.read<AuthBloc>().add(
                       AuthEventLogin(
                         email: email,
                         password: password,
                       ),
                     );
-              } on DomainException catch (e) {
-                await showErrorDialog(context, e.getDomainMessage());
-              } catch (e) {
-                showErrorDialog(
-                  context,
-                  'An error ocurred.',
-                );
-                devtools.log(e.toString());
-              }
-            },
-            child: const Text('Login'),
+              },
+              child: const Text('Login'),
+            ),
           ),
           TextButton(
             onPressed: () {
