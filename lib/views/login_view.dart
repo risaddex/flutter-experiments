@@ -3,11 +3,14 @@ import 'dart:developer' as devtools show log;
 import 'package:flutter/material.dart';
 import 'package:notesapp/services/auth/auth_exceptions.dart';
 import 'package:notesapp/services/auth/auth_service.dart';
+import 'package:notesapp/services/auth/bloc/auth_bloc.dart';
+import 'package:notesapp/services/auth/bloc/auth_event.dart';
 import 'package:notesapp/util/dialogs/error_dialog.dart';
 
 import 'package:notesapp/views/notes/notes_view.dart';
 import 'package:notesapp/views/register_view.dart';
 import 'package:notesapp/views/verify_email_view.dart';
+import 'package:provider/src/provider.dart';
 
 class LoginView extends StatefulWidget {
   static const route = '/login/';
@@ -63,23 +66,12 @@ class _LoginViewState extends State<LoginView> {
               final email = _email.text;
               final password = _password.text;
               try {
-                await _authService.logIn(
-                  email: email,
-                  password: password,
-                );
-                final user = _authService.currentUser;
-                if (user?.isEmailVerified ?? false) {
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    NotesView.route,
-                    (route) => false,
-                  );
-                  return;
-                }
-
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                  VerifyEmailView.route,
-                  (route) => false,
-                );
+                context.read<AuthBloc>().add(
+                      AuthEventLogin(
+                        email: email,
+                        password: password,
+                      ),
+                    );
               } on DomainException catch (e) {
                 await showErrorDialog(context, e.getDomainMessage());
               } catch (e) {
