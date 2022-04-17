@@ -4,5 +4,6 @@
     "firestore",
     "Firestore",
     "notesapp"
-  ]
+  ],
+  "dart.flutterSdkPath": "/home/Danilo/sdks/flutter"
 }

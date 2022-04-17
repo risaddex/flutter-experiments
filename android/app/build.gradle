@@ -20,11 +20,11 @@ def flutterVersionName = localProperties.getProperty('flutter.versionName')
 if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
-// Adiciona sdk dinamicamente
-def flutterMinSdkVersion = localProperties.getProperty('flutter.minSdkVersion')
-if (flutterMinSdkVersion == null) {
-    flutterMinSdkVersion = '19'
-}
+// // Adiciona sdk dinamicamente
+// def flutterMinSdkVersion = localProperties.getProperty('flutter.minSdkVersion')
+// if (flutterMinSdkVersion == null) {
+//     flutterMinSdkVersion = '19'
+// }
 
 
 apply plugin: 'com.android.application'
