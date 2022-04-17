@@ -2,11 +2,13 @@ import 'dart:developer' as dev_utils show log;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:notesapp/extensions/buildcontext/loc.dart';
 import 'package:notesapp/services/auth/auth_exceptions.dart';
 import 'package:notesapp/services/auth/bloc/auth_bloc.dart';
 import 'package:notesapp/services/auth/bloc/auth_event.dart';
 import 'package:notesapp/services/auth/bloc/auth_state.dart';
 import 'package:notesapp/util/dialogs/error_dialog.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LoginView extends StatefulWidget {
   static const route = '/login/';
@@ -47,7 +49,7 @@ class _LoginViewState extends State<LoginView> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Login'),
+          title: Text(context.loc.app_title),
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -62,7 +64,8 @@ class _LoginViewState extends State<LoginView> {
                   enableSuggestions: false,
                   autocorrect: false,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(hintText: 'Enter your email'),
+                  decoration:
+                      const InputDecoration(hintText: 'Enter your email'),
                 ),
                 TextField(
                   controller: _password,
@@ -79,7 +82,7 @@ class _LoginViewState extends State<LoginView> {
                         onPressed: () async {
                           final email = _email.text;
                           final password = _password.text;
-          
+
                           context.read<AuthBloc>().add(
                                 AuthEventLogin(
                                   email: email,
