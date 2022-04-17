@@ -3,6 +3,7 @@ import 'package:notesapp/services/auth/auth_service.dart';
 import 'package:notesapp/services/cloud/cloud_note.dart';
 import 'package:notesapp/services/cloud/firebase_cloud_storage.dart';
 import 'package:notesapp/services/notes/notes_service.dart';
+import 'package:notesapp/util/circular_progress.dart';
 import 'package:notesapp/util/dialogs/cannot_share_empty_note_dialog.dart';
 import 'package:notesapp/util/dialogs/generics/get_arguments.dart';
 import 'package:share_plus/share_plus.dart';
@@ -128,7 +129,7 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
                 );
 
               default:
-                return const CircularProgressIndicator();
+                return CustomCircularProgress();
             }
           }),
     );

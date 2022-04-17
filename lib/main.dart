@@ -6,6 +6,7 @@ import 'package:notesapp/services/auth/bloc/auth_bloc.dart';
 import 'package:notesapp/services/auth/bloc/auth_event.dart';
 import 'package:notesapp/services/auth/bloc/auth_state.dart';
 import 'package:notesapp/services/auth/firebase_auth_provider.dart';
+import 'package:notesapp/util/circular_progress.dart';
 import 'package:notesapp/views/forgot_password_view.dart';
 import 'package:notesapp/views/login_view.dart';
 import 'package:notesapp/views/notes/notes_view.dart';
@@ -60,17 +61,7 @@ class HomePage extends StatelessWidget {
           case AuthStateForgotPassword:
             return const ForgotPasswordView();
           default:
-            return Scaffold(
-              appBar: AppBar(),
-              body: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    CircularProgressIndicator(),
-                  ],
-                ),
-              ),
-            );
+            return CustomCircularProgress();
         }
       },
     );

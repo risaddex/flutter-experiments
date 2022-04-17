@@ -6,6 +6,7 @@ import 'package:notesapp/services/auth/bloc/auth_bloc.dart';
 import 'package:notesapp/services/auth/bloc/auth_event.dart';
 import 'package:notesapp/services/cloud/cloud_note.dart';
 import 'package:notesapp/services/cloud/firebase_cloud_storage.dart';
+import 'package:notesapp/util/circular_progress.dart';
 import 'package:notesapp/util/dialogs/logout_dialog.dart';
 import 'package:notesapp/views/notes/create_update_note_view.dart';
 import 'package:notesapp/views/notes/notes_list_view.dart';
@@ -88,11 +89,11 @@ class _NotesViewState extends State<NotesView> {
                   },
                 );
               } else {
-                return const CircularProgressIndicator();
+                return CustomCircularProgress();
               }
 
             default:
-              return const CircularProgressIndicator();
+              return CustomCircularProgress();
           }
         },
       ),
