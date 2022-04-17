@@ -7,7 +7,6 @@ abstract class GenericNotesService<T> {
     required String text,
   });
 
-  Future<Iterable<T>> getAllNotes({required covariant ownerId});
 
   Future<void> deleteNote({required covariant noteId});
 }

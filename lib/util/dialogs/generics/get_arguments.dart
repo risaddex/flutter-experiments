@@ -9,5 +9,6 @@ extension GetArgument on BuildContext {
     if (args != null && args is T) {
       return args as T;
     }
+    return null;
   }
 }

@@ -34,21 +34,13 @@ class FirebaseCloudStorage implements GenericNotesService<CloudNote> {
     }
   }
 
-  
+  Stream<Iterable<CloudNote>> allNotes({required String ownerUserId}) {
+    final allNotes = notes
+        .where(ownerUserIdFieldName, isEqualTo: ownerUserId)
+        .snapshots()
+        .map((event) => event.docs.map(CloudNote.fromSnapshot));
 
-  Stream<Iterable<CloudNote>> allNotes({required String ownerUserId}) =>
-      notes.snapshots().map((event) => event.docs
-          .map(CloudNote.fromSnapshot)
-          .where((note) => note.ownerUserId == ownerUserId));
-
-  @override
-  Future<Iterable<CloudNote>> getAllNotes({required String ownerId}) async {
-    var whereArgs = notes.where(ownerUserIdFieldName, isEqualTo: ownerId);
-    try {
-      return (await whereArgs.get()).docs.map(CloudNote.fromSnapshot);
-    } catch (e) {
-      throw cloud_exceptions.CouldNotGetAllNotesException();
-    }
+    return allNotes;
   }
 
   @override

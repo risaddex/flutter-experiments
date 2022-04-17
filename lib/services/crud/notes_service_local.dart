@@ -157,7 +157,6 @@ class NotesService implements GenericNotesService<DatabaseNote> {
     return note;
   }
 
-  @override
   Future<Iterable<DatabaseNote>> getAllNotes({required ownerId}) async {
     await _ensureDatabaseIsOpen();
     final db = _getDatabaseOrThrow();
